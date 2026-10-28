@@ -174,9 +174,9 @@ export async function sendMarketingEmailThroughBrevo(params: {
     ? decrypt(connection.apiKeyEncrypted)
     : config.brevo.apiKey;
   const senderEmail =
-    params.senderEmail || connection?.senderEmail || config.brevo.senderEmail || 'subashree@mailpilot.io';
+    params.senderEmail || connection?.senderEmail || config.brevo.senderEmail || 'abdurrahman18122006@gmail.com';
   const senderName =
-    params.senderName || connection?.senderName || config.brevo.senderName || 'MailPilot Marketing';
+    params.senderName || connection?.senderName || config.brevo.senderName || 'Rahmantec';
 
   if (!apiKey) {
     throw new Error('Brevo is not connected. Please add your Brevo API key in Integrations.');

@@ -172,6 +172,7 @@ DOMAIN-SPECIFIC WRITING RULES:
 4. If a User Pre-typed Subject was provided and is not empty, you may refine it or adopt it; otherwise create a crisp, relevant subject line.
 5. Provide a suitable greeting, well-structured body with natural paragraph breaks, a professional closing, and sender signature.
 6. NEVER invent unsupported business numbers, false dates, fake awards, or personal credentials.
+7. HIGHLIGHT COMPANY NAME: When you mention the Shop, Business, or Company Name ("${shopOrBusinessName}") anywhere in the greeting or body, you MUST format and highlight it in bold letters using double asterisks (e.g. **${shopOrBusinessName}**).
 
 Return ONLY a valid JSON object matching this exact schema:
 {
@@ -187,11 +188,14 @@ Return ONLY a valid JSON object matching this exact schema:
   try {
     const parsed = JSON.parse(rawJson);
     const generatedSubject = parsed.subject || subject || `${purpose} - ${shopOrBusinessName || effectiveDomain}`;
-    const greeting = parsed.greeting || (recipientName ? `Hi ${recipientName},` : shopOrBusinessName ? `Dear ${shopOrBusinessName} Team,` : 'Hello,');
-    const body = parsed.body || '';
+    const rawGreeting = parsed.greeting || (recipientName ? `Hi ${recipientName},` : shopOrBusinessName ? `Dear ${shopOrBusinessName} Team,` : 'Hello,');
+    const rawBody = parsed.body || '';
     const closing = parsed.closing || 'Best regards,';
     const signature = parsed.signature || senderName || '';
 
+    // Ensure company name is highlighted in bold
+    const greeting = highlightCompanyName(rawGreeting, shopOrBusinessName);
+    const body = highlightCompanyName(rawBody, shopOrBusinessName);
     const fullContent = `${greeting}\n\n${body}\n\n${closing}\n${signature}`.trim();
 
     return {
@@ -205,6 +209,47 @@ Return ONLY a valid JSON object matching this exact schema:
   } catch (err) {
     throw new Error('Failed to parse structured response from Gemini API.');
   }
+}
+
+export function highlightCompanyName(text: string, companyName?: string): string {
+  if (!text || !companyName || !companyName.trim()) return text;
+  const name = companyName.trim();
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // Matches occurrences that are not already enclosed in **
+  return text.replace(new RegExp(`(?<!\\*\\*)(${escaped})(?!\\*\\*)`, 'gi'), '**$1**');
+}
+
+export function formatEmailHtml(text: string, companyName?: string): string {
+  if (!text) return '';
+  let safe = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  // Ensure company name is bolded
+  safe = highlightCompanyName(safe, companyName);
+
+  // Convert **bold** to <strong>bold</strong>
+  safe = safe.replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight: 700; color: #0f172a;">$1</strong>');
+
+  // Convert paragraphs
+  const paragraphs = safe
+    .split(/\n\s*\n/)
+    .map((p) => `<p style="margin: 0 0 16px 0; line-height: 1.65; color: #1e293b;">${p.replace(/\n/g, '<br/>')}</p>`)
+    .join('');
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; color: #1e293b; background-color: #ffffff; padding: 24px 16px; max-width: 650px; margin: 0 auto;">
+  ${paragraphs}
+</body>
+</html>
+  `.trim();
 }
 
 export async function rewriteEmail(params: {

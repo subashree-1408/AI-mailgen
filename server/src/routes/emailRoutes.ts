@@ -3,6 +3,8 @@ import { prisma } from '../lib/prisma.js';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth.js';
 import { sendEmailThroughGmail } from '../services/gmailService.js';
 import { sendMarketingEmailThroughBrevo } from '../services/brevoService.js';
+import { formatEmailHtml } from '../services/aiService.js';
+import { config } from '../config/env.js';
 
 const router = Router();
 
@@ -109,8 +111,8 @@ router.post('/', requireAuth, async (req: AuthenticatedRequest, res: Response): 
       include: { gmailConnection: true },
     });
 
-    const senderEmail = user?.gmailConnection?.emailAddress || user?.email;
-    const senderName = user?.name;
+    const senderEmail = config.brevo.senderEmail || user?.gmailConnection?.emailAddress || user?.email;
+    const senderName = config.brevo.senderName || user?.name || 'Rahmantec';
 
     const email = await prisma.emailRecord.create({
       data: {
@@ -295,14 +297,17 @@ router.post('/:id/send', requireAuth, async (req: AuthenticatedRequest, res: Res
 
     if (targetProvider === 'BREVO') {
       try {
+        const companyName = email.shortDescription || '';
+        const formattedHtml = email.bodyHtml || formatEmailHtml(email.bodyText, companyName);
+
         const result = await sendMarketingEmailThroughBrevo({
           userId: req.user!.id,
           to: email.recipientEmail,
           subject: email.subject || '(No Subject)',
-          htmlContent: email.bodyHtml || email.bodyText.replace(/\n/g, '<br/>'),
+          htmlContent: formattedHtml,
           plainText: email.bodyText,
-          senderEmail: email.senderEmail || undefined,
-          senderName: email.senderName || undefined,
+          senderEmail: config.brevo.senderEmail || email.senderEmail || undefined,
+          senderName: config.brevo.senderName || email.senderName || undefined,
         });
 
         const updated = await prisma.emailRecord.update({

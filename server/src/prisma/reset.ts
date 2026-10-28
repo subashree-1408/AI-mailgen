@@ -87,27 +87,30 @@ export async function resetDatabase() {
 
   // 5. Connect Brevo credentials for admin
   if (config.brevo.apiKey) {
+    const senderEmail = config.brevo.senderEmail || 'abdurrahman18122006@gmail.com';
+    const senderName = config.brevo.senderName || 'Rahmantec';
+
     await prisma.brevoConnection.upsert({
       where: { userId: admin.id },
       create: {
         userId: admin.id,
         apiKeyEncrypted: encrypt(config.brevo.apiKey),
-        senderEmail: 'Subashreekamal@gmail.com',
-        senderName: 'subashree',
+        senderEmail,
+        senderName,
         isVerified: true,
         accountStatus: 'CONNECTED',
         lastTestedAt: new Date(),
       },
       update: {
         apiKeyEncrypted: encrypt(config.brevo.apiKey),
-        senderEmail: 'Subashreekamal@gmail.com',
-        senderName: 'subashree',
+        senderEmail,
+        senderName,
         isVerified: true,
         accountStatus: 'CONNECTED',
         lastTestedAt: new Date(),
       },
     });
-    console.log('Linked Brevo credentials for Subashreekamal@gmail.com.');
+    console.log(`Linked Brevo credentials for ${senderEmail} (${senderName}).`);
   }
 
   // 6. Connect Gmail sender identity for admin
