@@ -12,8 +12,7 @@
     "db:push": "cd server && npm run prisma:push",
     "db:seed": "cd server && npm run seed",
     "db:reset": "cd server && npx tsx src/prisma/reset.ts",
-    "test:integration": "cd server && npx tsx test/integration.test.ts",
-    "streamlit": "cd ai-marketing-sequence-generator && streamlit run app.py"
+    "test:integration": "cd server && npx tsx test/integration.test.ts"
   },
   "keywords": [
     "ai",

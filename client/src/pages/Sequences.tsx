@@ -221,7 +221,7 @@ export const Sequences: React.FC = () => {
         <div className="flex items-center space-x-2 text-slate-600">
           <Terminal className="w-4 h-4 text-indigo-600 flex-shrink-0" />
           <span>
-            <strong>Included Setup:</strong> Python Streamlit Generator is included in <code className="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono text-[11px]">ai-marketing-sequence-generator/</code>. Run via <code className="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono text-[11px]">npm run streamlit</code>.
+            <strong>AI Sequence Engine:</strong> Generate multi-stage drip marketing campaigns powered by Google Gemini.
           </span>
         </div>
         <span className="text-[11px] font-semibold text-indigo-600 bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-full whitespace-nowrap self-start sm:self-auto">
