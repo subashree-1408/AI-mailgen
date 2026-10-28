@@ -139,42 +139,8 @@ export const CreateEmail: React.FC<CreateEmailProps> = ({
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isImproving, setIsImproving] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [sendProvider, setSendProvider] = useState<'BREVO' | 'GMAIL'>('BREVO');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
-
-  // Apply Quick Profolio Outreach Presets
-  const applyPreset = (type: 'quotation' | 'proposal' | 'appointment' | 'followup') => {
-    if (type === 'quotation') {
-      setPurpose('Price / Quotation Request');
-      setBusinessDomain('Other');
-      setCustomDomain('Web Development & IT Services');
-      setTone('Professional');
-      setLength('Medium');
-      setAdditionalInstructions('Provide a clear website design and full-stack development quotation with milestone deliverables, timeline, and pricing breakdown.');
-    } else if (type === 'proposal') {
-      setPurpose('Partnership Proposal');
-      setBusinessDomain('Other');
-      setCustomDomain('Web Development & IT Services');
-      setTone('Persuasive');
-      setLength('High');
-      setAdditionalInstructions('Comprehensive freelance project proposal outlining technical architecture, responsive UI design, frontend/backend integration, and delivery milestones.');
-    } else if (type === 'appointment') {
-      setPurpose('Follow-up Email');
-      setBusinessDomain('Other');
-      setCustomDomain('Web Development (Profolio)');
-      setTone('Friendly');
-      setLength('Medium');
-      setAdditionalInstructions('Thank you for booking an appointment with Profolio. Confirming your scheduled meeting date and time, providing video call link details, and setting the agenda.');
-    } else if (type === 'followup') {
-      setPurpose('Follow-up Email');
-      setBusinessDomain('Other');
-      setCustomDomain('Web Development & IT Services');
-      setTone('Professional');
-      setLength('Low');
-      setAdditionalInstructions('Polite follow-up on our previous discussion regarding their web development requirements to check if they have questions or are ready to kick off.');
-    }
-  };
 
   // Prefill handling from Contacts / Navigation
   useEffect(() => {
@@ -424,7 +390,7 @@ export const CreateEmail: React.FC<CreateEmailProps> = ({
           length,
           additionalInstructions,
           isDraft: false,
-          provider: sendProvider,
+          provider: 'BREVO',
         });
         emailId = saved.email.id;
         setCurrentDraftId(emailId);
@@ -435,19 +401,17 @@ export const CreateEmail: React.FC<CreateEmailProps> = ({
           subject,
           bodyText,
           isDraft: false,
-          provider: sendProvider,
+          provider: 'BREVO',
         });
       }
 
-      // 2. Dispatch via chosen backend provider
+      // 2. Dispatch via Brevo backend
       if (!emailId) throw new Error('Failed to initialize email record before sending.');
 
-      const result = sendProvider === 'BREVO'
-        ? await api.sendEmailViaBrevo(emailId)
-        : await api.sendEmailViaGmail(emailId);
+      const result = await api.sendEmailViaBrevo(emailId);
 
       if (result.success) {
-        setSuccessMsg(result.message || `Email successfully sent via ${sendProvider === 'BREVO' ? 'Brevo backend' : 'Gmail'}!`);
+        setSuccessMsg(result.message || 'Email successfully sent via Brevo backend!');
         if (onTabChange) {
           setTimeout(() => {
             onTabChange('my-emails');
@@ -456,7 +420,7 @@ export const CreateEmail: React.FC<CreateEmailProps> = ({
       }
     } catch (err: any) {
       console.error('Send error:', err);
-      setErrorMsg(err.message || `Failed to dispatch email through ${sendProvider === 'BREVO' ? 'Brevo backend' : 'Gmail API'}.`);
+      setErrorMsg(err.message || 'Failed to dispatch email through Brevo backend.');
     } finally {
       setIsSending(false);
     }
@@ -575,47 +539,6 @@ export const CreateEmail: React.FC<CreateEmailProps> = ({
               <p className="text-xs text-slate-500 mt-1">
                 Fill in the details below. Gemini AI will craft a personalized email tailored to your business domain and purpose.
               </p>
-            </div>
-
-            {/* Quick Presets for Profolio Client Outreach */}
-            <div className="bg-gradient-to-r from-indigo-50/80 via-white to-slate-50 border border-indigo-100 rounded-xl p-3.5 space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-800">
-                  <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-                  <span>Profolio Quick Client Presets:</span>
-                </div>
-                <span className="text-[11px] text-slate-400">1-click to auto-configure common client workflows</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => applyPreset('quotation')}
-                  className="px-2.5 py-1.5 bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-lg text-[11px] font-semibold text-slate-700 hover:text-indigo-700 transition cursor-pointer flex items-center space-x-1 shadow-2xs"
-                >
-                  <span>📄 Website Quotation & Estimate</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => applyPreset('proposal')}
-                  className="px-2.5 py-1.5 bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-lg text-[11px] font-semibold text-slate-700 hover:text-indigo-700 transition cursor-pointer flex items-center space-x-1 shadow-2xs"
-                >
-                  <span>🚀 Project Scope & Proposal</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => applyPreset('appointment')}
-                  className="px-2.5 py-1.5 bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-lg text-[11px] font-semibold text-slate-700 hover:text-indigo-700 transition cursor-pointer flex items-center space-x-1 shadow-2xs"
-                >
-                  <span>📅 Appointment Confirmation</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => applyPreset('followup')}
-                  className="px-2.5 py-1.5 bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-lg text-[11px] font-semibold text-slate-700 hover:text-indigo-700 transition cursor-pointer flex items-center space-x-1 shadow-2xs"
-                >
-                  <span>🤝 Client Follow-up</span>
-                </button>
-              </div>
             </div>
 
             {/* 1. Recipient Details */}
@@ -1044,62 +967,14 @@ export const CreateEmail: React.FC<CreateEmailProps> = ({
               </div>
             )}
 
-            {/* Error Help / Troubleshooting Card for Brevo 535 */}
-            {errorMsg && (errorMsg.includes('535') || errorMsg.includes('Authentication failed')) && (
-              <div className="p-4 bg-amber-50/80 border border-amber-200 rounded-xl space-y-2 text-xs text-amber-950">
-                <div className="flex items-center space-x-1.5 font-bold text-amber-900">
-                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-                  <span>How to fix Brevo 535 Authentication Failed:</span>
-                </div>
-                <ul className="list-disc pl-5 space-y-1 text-amber-800 text-[11px] leading-relaxed">
-                  <li>
-                    <strong>Check SMTP Login Username:</strong> In your Brevo account (<em>Settings &gt; SMTP &amp; API &gt; SMTP</em>), verify the exact <strong>Login</strong> username assigned to your account.
-                  </li>
-                  <li>
-                    <strong>Account Activation:</strong> Newly registered Brevo accounts require one-time account activation or sender verification before outgoing relay is permitted.
-                  </li>
-                  <li>
-                    <strong>Alternative:</strong> You can select <strong>Send via Gmail</strong> below to dispatch this email directly through your connected Gmail account!
-                  </li>
-                </ul>
-              </div>
-            )}
-
-            {/* Footer with Provider Selector & Send Action */}
+            {/* Footer with Action Buttons */}
             <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
-              {/* Sending Provider Selector */}
-              <div className="flex items-center space-x-2 text-xs">
-                <span className="text-slate-500 font-medium">Send via:</span>
-                <div className="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-100">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSendProvider('BREVO');
-                      setErrorMsg(null);
-                    }}
-                    className={`px-3 py-1 rounded-md text-xs font-semibold transition cursor-pointer ${
-                      sendProvider === 'BREVO'
-                        ? 'bg-white text-emerald-700 shadow-2xs font-bold'
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    Brevo (Marketing)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSendProvider('GMAIL');
-                      setErrorMsg(null);
-                    }}
-                    className={`px-3 py-1 rounded-md text-xs font-semibold transition cursor-pointer ${
-                      sendProvider === 'GMAIL'
-                        ? 'bg-white text-indigo-700 shadow-2xs font-bold'
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    Gmail Account
-                  </button>
-                </div>
+              <div className="flex items-center space-x-2 text-xs text-slate-500">
+                <span className="font-medium">Sender Identity:</span>
+                <span className="font-mono text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md text-[11px] font-semibold flex items-center space-x-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span>Subashreekamal@gmail.com</span>
+                </span>
               </div>
 
               <div className="flex items-center space-x-3">
@@ -1116,18 +991,10 @@ export const CreateEmail: React.FC<CreateEmailProps> = ({
                   type="button"
                   onClick={handleSendEmail}
                   disabled={isSending}
-                  className={`px-6 py-2.5 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center space-x-2 cursor-pointer disabled:opacity-50 ${
-                    sendProvider === 'BREVO'
-                      ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 shadow-emerald-200'
-                      : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 shadow-indigo-200'
-                  }`}
+                  className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-200 transition-all flex items-center space-x-2 cursor-pointer disabled:opacity-50"
                 >
                   <Send className={`w-3.5 h-3.5 ${isSending ? 'animate-spin' : ''}`} />
-                  <span>
-                    {isSending
-                      ? `Sending via ${sendProvider === 'BREVO' ? 'Brevo' : 'Gmail'}...`
-                      : `Send via ${sendProvider === 'BREVO' ? 'Brevo' : 'Gmail'}`}
-                  </span>
+                  <span>{isSending ? 'Sending Email via Brevo...' : 'Send Email'}</span>
                 </button>
               </div>
             </div>
