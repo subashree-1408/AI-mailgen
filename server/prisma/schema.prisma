@@ -1,0 +1,321 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("USER")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  workspaces         WorkspaceMembership[]
+  gmailConnection    GmailConnection?
+  brevoConnection    BrevoConnection?
+  contacts           Contact[]
+  marketingContacts  MarketingContact[]
+  emailRecords       EmailRecord[]
+  marketingCampaigns MarketingCampaign[]
+  sequences          Sequence[]
+  auditLogs          AuditLog[]
+}
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  ownerId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members WorkspaceMembership[]
+}
+
+model WorkspaceMembership {
+  id          String   @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        String   @default("MEMBER")
+  createdAt   DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+}
+
+model GmailConnection {
+  id                    String    @id @default(cuid())
+  userId                String    @unique
+  emailAddress          String
+  googleUserId          String?
+  accessTokenEncrypted  String?
+  refreshTokenEncrypted String?
+  expiryDate            DateTime?
+  scope                 String?
+  status                String    @default("CONNECTED") // CONNECTED, EXPIRED, DISCONNECTED, ERROR
+  lastSyncAt            DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model BrevoConnection {
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  apiKeyEncrypted  String?
+  senderEmail      String
+  senderName       String
+  isVerified       Boolean   @default(false)
+  accountStatus    String    @default("DISCONNECTED") // CONNECTED, INVALID_KEY, DISCONNECTED
+  lastTestedAt     DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String?
+  email     String
+  company   String?
+  notes     String?
+  tags      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, email])
+}
+
+model MarketingContact {
+  id               String    @id @default(cuid())
+  userId           String
+  email            String
+  firstName        String?
+  lastName         String?
+  listName         String    @default("Default")
+  status           String    @default("SUBSCRIBED") // SUBSCRIBED, UNSUBSCRIBED, SUPPRESSED, BOUNCED
+  unsubscribedAt   DateTime?
+  customAttributes String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, email])
+}
+
+model EmailRecord {
+  id                     String    @id @default(cuid())
+  userId                 String
+  title                  String?
+  recipientEmail         String
+  recipientName          String?
+  cc                     String?
+  bcc                    String?
+  senderEmail            String?
+  senderName             String?
+  subject                String
+  bodyText               String
+  bodyHtml               String?
+  purpose                String?
+  tone                   String?
+  length                 String?
+  language               String?
+  shortDescription       String?
+  additionalInstructions String?
+  status                 String    @default("DRAFT") // DRAFT, READY, SENDING, ACCEPTED, FAILED, CANCELED
+  provider               String    @default("GMAIL") // GMAIL, BREVO, MANUAL
+  providerMessageId      String?
+  errorMessage           String?
+  isDraft                Boolean   @default(false)
+  sentAt                 DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sendAttempts EmailSendAttempt[]
+
+  @@index([userId, status])
+  @@index([userId, isDraft])
+}
+
+model EmailSendAttempt {
+  id              String   @id @default(cuid())
+  emailRecordId   String
+  provider        String
+  status          String // SUCCESS, FAILURE
+  attemptNumber   Int      @default(1)
+  responsePayload String?
+  errorMessage    String?
+  attemptedAt     DateTime @default(now())
+
+  emailRecord EmailRecord @relation(fields: [emailRecordId], references: [id], onDelete: Cascade)
+}
+
+model MarketingCampaign {
+  id               String    @id @default(cuid())
+  userId           String
+  name             String
+  subject          String
+  previewText      String?
+  htmlContent      String
+  plainText        String?
+  senderName       String?
+  senderEmail      String?
+  targetList       String?   @default("Default")
+  status           String    @default("DRAFT") // DRAFT, SCHEDULED, ACTIVE, COMPLETED, PAUSED, CANCELED
+  scheduledAt      DateTime?
+  sentAt           DateTime?
+  totalRecipients  Int       @default(0)
+  sentCount        Int       @default(0)
+  openCount        Int       @default(0)
+  clickCount       Int       @default(0)
+  bounceCount      Int       @default(0)
+  unsubscribeCount Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user   User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emails CampaignEmail[]
+
+  @@index([userId, status])
+}
+
+model CampaignEmail {
+  id             String    @id @default(cuid())
+  campaignId     String
+  recipientEmail String
+  status         String    @default("PENDING") // PENDING, SENT, FAILED, BOUNCED
+  brevoMessageId String?
+  sentAt         DateTime?
+  openedAt       DateTime?
+  clickedAt      DateTime?
+  createdAt      DateTime  @default(now())
+
+  campaign MarketingCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId, recipientEmail])
+}
+
+model Sequence {
+  id           String   @id @default(cuid())
+  userId       String
+  name         String
+  sequenceType String   @default("WELCOME")
+  strategy     String?
+  status       String   @default("DRAFT") // DRAFT, ACTIVE, PAUSED, ARCHIVED
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  steps       SequenceStep[]
+  enrollments SequenceEnrollment[]
+
+  @@index([userId, status])
+}
+
+model SequenceStep {
+  id          String   @id @default(cuid())
+  sequenceId  String
+  stepOrder   Int
+  delayHours  Int      @default(24)
+  subject     String
+  previewText String?
+  bodyHtml    String
+  bodyText    String
+  ctaText     String?
+  ctaUrl      String?
+  variantA    String?
+  variantB    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sequence Sequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+
+  @@index([sequenceId, stepOrder])
+}
+
+model SequenceEnrollment {
+  id               String    @id @default(cuid())
+  sequenceId       String
+  contactId        String?
+  contactEmail     String
+  currentStepOrder Int       @default(1)
+  status           String    @default("ACTIVE") // ACTIVE, PAUSED, COMPLETED, EXITED
+  nextExecutionAt  DateTime?
+  lastExecutedAt   DateTime?
+  exitReason       String?
+  enrolledAt       DateTime  @default(now())
+
+  sequence Sequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+
+  @@index([sequenceId, status])
+  @@index([nextExecutionAt, status])
+}
+
+model ScheduledJob {
+  id           String    @id @default(cuid())
+  jobType      String // CAMPAIGN_SEND, SEQUENCE_STEP_SEND, SYNC_STATUS
+  targetId     String
+  payload      String?
+  scheduledFor DateTime
+  status       String    @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED, RETRYING
+  attempts     Int       @default(0)
+  maxAttempts  Int       @default(3)
+  lastError    String?
+  executedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([scheduledFor, status])
+}
+
+model ProviderEvent {
+  id             String   @id @default(cuid())
+  provider       String // BREVO, GMAIL
+  eventType      String // DELIVERED, OPENED, CLICKED, BOUNCED, SPAM, UNSUBSCRIBED
+  recipientEmail String
+  messageId      String?
+  campaignId     String?
+  rawPayload     String?
+  occurredAt     DateTime @default(now())
+
+  @@index([recipientEmail])
+  @@index([campaignId])
+}
+
+model SuppressionRecord {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  reason    String // UNSUBSCRIBED, HARD_BOUNCE, COMPLAINT, MANUAL
+  source    String?
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  userId       String?
+  action       String
+  resourceType String
+  resourceId   String?
+  details      String?
+  ipAddress    String?
+  createdAt    DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, action])
+}
