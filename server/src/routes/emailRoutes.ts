@@ -112,7 +112,7 @@ router.post('/', requireAuth, async (req: AuthenticatedRequest, res: Response): 
     });
 
     const senderEmail = config.brevo.senderEmail || user?.gmailConnection?.emailAddress || user?.email;
-    const senderName = config.brevo.senderName || user?.name || 'Rahmantec';
+    const senderName = config.brevo.senderName || user?.name || 'subashree';
 
     const email = await prisma.emailRecord.create({
       data: {

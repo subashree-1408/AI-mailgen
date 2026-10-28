@@ -973,7 +973,7 @@ export const CreateEmail: React.FC<CreateEmailProps> = ({
                 <span className="font-medium">Sender Identity:</span>
                 <span className="font-mono text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md text-[11px] font-semibold flex items-center space-x-1.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span>abdurrahman18122006@gmail.com</span>
+                  <span>Subashreekamal@gmail.com</span>
                 </span>
               </div>
 

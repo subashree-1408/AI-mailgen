@@ -174,9 +174,9 @@ export async function sendMarketingEmailThroughBrevo(params: {
     ? decrypt(connection.apiKeyEncrypted)
     : config.brevo.apiKey;
   const senderEmail =
-    params.senderEmail || connection?.senderEmail || config.brevo.senderEmail || 'abdurrahman18122006@gmail.com';
+    params.senderEmail || connection?.senderEmail || config.brevo.senderEmail || 'Subashreekamal@gmail.com';
   const senderName =
-    params.senderName || connection?.senderName || config.brevo.senderName || 'Rahmantec';
+    params.senderName || connection?.senderName || config.brevo.senderName || 'subashree';
 
   if (!apiKey) {
     throw new Error('Brevo is not connected. Please add your Brevo API key in Integrations.');

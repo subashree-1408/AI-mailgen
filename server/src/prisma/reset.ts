@@ -87,8 +87,8 @@ export async function resetDatabase() {
 
   // 5. Connect Brevo credentials for admin
   if (config.brevo.apiKey) {
-    const senderEmail = config.brevo.senderEmail || 'abdurrahman18122006@gmail.com';
-    const senderName = config.brevo.senderName || 'Rahmantec';
+    const senderEmail = config.brevo.senderEmail || 'Subashreekamal@gmail.com';
+    const senderName = config.brevo.senderName || 'subashree';
 
     await prisma.brevoConnection.upsert({
       where: { userId: admin.id },
