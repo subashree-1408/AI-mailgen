@@ -76,8 +76,25 @@ const DOMAINS = [
   'Other',
 ];
 
-export const CreateEmail: React.FC<{ initialDraftId?: string; onTabChange?: (tab: string) => void }> = ({
+export interface CreateEmailProps {
+  initialDraftId?: string;
+  prefill?: {
+    recipientEmail?: string;
+    recipientName?: string;
+    shopOrBusinessName?: string;
+    purpose?: string;
+    tone?: string;
+    length?: string;
+    businessDomain?: string;
+    customDomain?: string;
+    instructions?: string;
+  };
+  onTabChange?: (tab: string) => void;
+}
+
+export const CreateEmail: React.FC<CreateEmailProps> = ({
   initialDraftId,
+  prefill,
   onTabChange,
 }) => {
   const { user } = useAuth();
@@ -125,6 +142,54 @@ export const CreateEmail: React.FC<{ initialDraftId?: string; onTabChange?: (tab
   const [sendProvider, setSendProvider] = useState<'BREVO' | 'GMAIL'>('BREVO');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  // Apply Quick Profolio Outreach Presets
+  const applyPreset = (type: 'quotation' | 'proposal' | 'appointment' | 'followup') => {
+    if (type === 'quotation') {
+      setPurpose('Price / Quotation Request');
+      setBusinessDomain('Other');
+      setCustomDomain('Web Development & IT Services');
+      setTone('Professional');
+      setLength('Medium');
+      setAdditionalInstructions('Provide a clear website design and full-stack development quotation with milestone deliverables, timeline, and pricing breakdown.');
+    } else if (type === 'proposal') {
+      setPurpose('Partnership Proposal');
+      setBusinessDomain('Other');
+      setCustomDomain('Web Development & IT Services');
+      setTone('Persuasive');
+      setLength('High');
+      setAdditionalInstructions('Comprehensive freelance project proposal outlining technical architecture, responsive UI design, frontend/backend integration, and delivery milestones.');
+    } else if (type === 'appointment') {
+      setPurpose('Follow-up Email');
+      setBusinessDomain('Other');
+      setCustomDomain('Web Development (Profolio)');
+      setTone('Friendly');
+      setLength('Medium');
+      setAdditionalInstructions('Thank you for booking an appointment with Profolio. Confirming your scheduled meeting date and time, providing video call link details, and setting the agenda.');
+    } else if (type === 'followup') {
+      setPurpose('Follow-up Email');
+      setBusinessDomain('Other');
+      setCustomDomain('Web Development & IT Services');
+      setTone('Professional');
+      setLength('Low');
+      setAdditionalInstructions('Polite follow-up on our previous discussion regarding their web development requirements to check if they have questions or are ready to kick off.');
+    }
+  };
+
+  // Prefill handling from Contacts / Navigation
+  useEffect(() => {
+    if (prefill) {
+      if (prefill.recipientEmail) setRecipientEmail(prefill.recipientEmail);
+      if (prefill.recipientName) setRecipientName(prefill.recipientName);
+      if (prefill.shopOrBusinessName) setShopOrBusinessName(prefill.shopOrBusinessName);
+      if (prefill.purpose) setPurpose(prefill.purpose);
+      if (prefill.tone) setTone(prefill.tone);
+      if (prefill.length) setLength(prefill.length);
+      if (prefill.businessDomain) setBusinessDomain(prefill.businessDomain);
+      if (prefill.customDomain) setCustomDomain(prefill.customDomain);
+      if (prefill.instructions) setAdditionalInstructions(prefill.instructions);
+    }
+  }, [prefill]);
 
   // Auto-load draft if provided
   useEffect(() => {
@@ -510,6 +575,47 @@ export const CreateEmail: React.FC<{ initialDraftId?: string; onTabChange?: (tab
               <p className="text-xs text-slate-500 mt-1">
                 Fill in the details below. Gemini AI will craft a personalized email tailored to your business domain and purpose.
               </p>
+            </div>
+
+            {/* Quick Presets for Profolio Client Outreach */}
+            <div className="bg-gradient-to-r from-indigo-50/80 via-white to-slate-50 border border-indigo-100 rounded-xl p-3.5 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-800">
+                  <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                  <span>Profolio Quick Client Presets:</span>
+                </div>
+                <span className="text-[11px] text-slate-400">1-click to auto-configure common client workflows</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => applyPreset('quotation')}
+                  className="px-2.5 py-1.5 bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-lg text-[11px] font-semibold text-slate-700 hover:text-indigo-700 transition cursor-pointer flex items-center space-x-1 shadow-2xs"
+                >
+                  <span>📄 Website Quotation & Estimate</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyPreset('proposal')}
+                  className="px-2.5 py-1.5 bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-lg text-[11px] font-semibold text-slate-700 hover:text-indigo-700 transition cursor-pointer flex items-center space-x-1 shadow-2xs"
+                >
+                  <span>🚀 Project Scope & Proposal</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyPreset('appointment')}
+                  className="px-2.5 py-1.5 bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-lg text-[11px] font-semibold text-slate-700 hover:text-indigo-700 transition cursor-pointer flex items-center space-x-1 shadow-2xs"
+                >
+                  <span>📅 Appointment Confirmation</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyPreset('followup')}
+                  className="px-2.5 py-1.5 bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-lg text-[11px] font-semibold text-slate-700 hover:text-indigo-700 transition cursor-pointer flex items-center space-x-1 shadow-2xs"
+                >
+                  <span>🤝 Client Follow-up</span>
+                </button>
+              </div>
             </div>
 
             {/* 1. Recipient Details */}
