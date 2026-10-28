@@ -10,6 +10,7 @@ node_modules
 .env.test.local
 .env.production.local
 server/.env
+ai-marketing-sequence-generator/
 ai-marketing-sequence-generator/.env
 !.env.example
 !*/.env.example
