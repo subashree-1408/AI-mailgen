@@ -106,12 +106,13 @@ export async function verifyBrevoCredentials(
 
   // If it's an SMTP key (xsmtpsib-)
   return new Promise((resolve) => {
+    const smtpUser = config.brevo.smtpLogin || senderEmail || 'apikey';
     const transporter = nodemailer.createTransport({
       host: 'smtp-relay.brevo.com',
       port: 587,
       secure: false,
       auth: {
-        user: senderEmail || 'apikey',
+        user: smtpUser,
         pass: apiKey,
       },
     });
@@ -214,12 +215,13 @@ export async function sendMarketingEmailThroughBrevo(params: {
   }
 
   // If SMTP relay
+  const smtpUser = config.brevo.smtpLogin || senderEmail;
   const transporter = nodemailer.createTransport({
     host: 'smtp-relay.brevo.com',
     port: 587,
     secure: false,
     auth: {
-      user: senderEmail,
+      user: smtpUser,
       pass: apiKey,
     },
   });

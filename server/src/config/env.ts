@@ -15,6 +15,7 @@ export const config = {
     apiKey: process.env.BREVO_API_KEY || '',
     senderEmail: process.env.BREVO_SENDER_EMAIL || '',
     senderName: process.env.BREVO_SENDER_NAME || 'MailPilot',
+    smtpLogin: process.env.BREVO_SMTP_LOGIN || process.env.BREVO_SENDER_EMAIL || '',
   },
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:3000',
 };
