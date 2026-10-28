@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import path from 'path';
+import fs from 'fs';
 import { config } from './config/env.js';
 import { startScheduler } from './services/schedulerService.js';
 
@@ -48,6 +50,19 @@ app.use('/api/sequences', sequenceRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/webhooks', webhookRoutes);
+
+const clientDistPath = fs.existsSync(path.resolve(process.cwd(), 'client/dist'))
+  ? path.resolve(process.cwd(), 'client/dist')
+  : path.resolve(process.cwd(), '../client/dist');
+
+// Serve client static production bundle if present
+if (fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(clientDistPath, 'index.html'));
+  });
+}
 
 // Global Error Handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "MailPilot AI - Write smarter. Send professionally. Automate everything.",
   "scripts": {
+    "build": "cd client && npm install && npm run build && cd ../server && npm install && npx prisma generate && npx prisma db push && npm run build && npx tsx src/prisma/reset.ts",
+    "start": "cd server && npm start",
     "dev:server": "cd server && npm run dev",
     "dev:client": "cd client && npm run dev",
     "build:server": "cd server && npm run build",
