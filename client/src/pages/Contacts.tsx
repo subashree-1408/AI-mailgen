@@ -3,7 +3,14 @@ import { Users, Plus, Trash2, Search, Mail, Tag, Building2, RefreshCw } from 'lu
 import { api } from '../api/client.js';
 import { Contact, MarketingContact } from '../types/index.js';
 
-export const Contacts: React.FC = () => {
+export const Contacts: React.FC<{
+  onSendEmail?: (prefill: {
+    recipientEmail: string;
+    recipientName: string;
+    shopOrBusinessName: string;
+    instructions: string;
+  }) => void;
+}> = ({ onSendEmail }) => {
   const [activeTab, setActiveTab] = useState<'personal' | 'marketing'>('personal');
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [marketingContacts, setMarketingContacts] = useState<MarketingContact[]>([]);
@@ -213,13 +220,33 @@ export const Contacts: React.FC = () => {
                         )}
                       </td>
                       <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                        <button
-                          onClick={() => handleDeletePersonal(c.id)}
-                          className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors"
-                          title="Delete contact"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        <div className="flex items-center justify-end space-x-1.5">
+                          {onSendEmail && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                onSendEmail({
+                                  recipientEmail: c.email,
+                                  recipientName: c.name || '',
+                                  shopOrBusinessName: c.company || '',
+                                  instructions: c.notes ? `Context from inquiry: ${c.notes}` : '',
+                                })
+                              }
+                              className="px-2.5 py-1 text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors flex items-center space-x-1 shadow-2xs cursor-pointer"
+                              title="Send custom AI email to this client"
+                            >
+                              <Mail className="w-3 h-3" />
+                              <span>Send Email</span>
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDeletePersonal(c.id)}
+                            className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
+                            title="Delete contact"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

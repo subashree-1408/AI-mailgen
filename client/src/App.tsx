@@ -16,6 +16,7 @@ function MainApp() {
   const [currentTab, setCurrentTab] = useState<string>('dashboard');
   const [collapsed, setCollapsed] = useState<boolean>(false);
   const [activeDraftId, setActiveDraftId] = useState<string | undefined>(undefined);
+  const [activePrefill, setActivePrefill] = useState<any>(undefined);
 
   if (loading) {
     return (
@@ -56,8 +57,9 @@ function MainApp() {
     );
   }
 
-  const handleNavigate = (tab: string, draftId?: string) => {
+  const handleNavigate = (tab: string, draftId?: string, prefill?: any) => {
     setActiveDraftId(draftId);
+    setActivePrefill(prefill);
     setCurrentTab(tab);
   };
 
@@ -69,6 +71,7 @@ function MainApp() {
         return (
           <CreateEmail
             initialDraftId={activeDraftId}
+            prefill={activePrefill}
             onTabChange={(tab) => handleNavigate(tab)}
           />
         );
@@ -87,7 +90,11 @@ function MainApp() {
           />
         );
       case 'contacts':
-        return <Contacts />;
+        return (
+          <Contacts
+            onSendEmail={(prefill) => handleNavigate('create-email', undefined, prefill)}
+          />
+        );
       case 'settings':
         return <Settings />;
       default:
