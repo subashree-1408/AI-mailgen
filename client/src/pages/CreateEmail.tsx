@@ -23,6 +23,7 @@ import {
   AlignLeft,
   Mail,
   Zap,
+  Shield,
 } from 'lucide-react';
 import { api } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.js';
@@ -910,6 +911,32 @@ export const CreateEmail: React.FC<{ initialDraftId?: string; onTabChange?: (tab
                 className="w-full p-4 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 leading-relaxed font-sans focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 resize-y"
               />
             </div>
+
+            {/* Error Help for Brevo Authorized IP requirement */}
+            {errorMsg && (errorMsg.includes('unrecognised IP address') || errorMsg.includes('authorised_ips')) && (
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl space-y-2 text-xs text-blue-950">
+                <div className="flex items-center space-x-1.5 font-bold text-blue-900">
+                  <Shield className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span>Brevo Security: One-Time IP Authorization Required</span>
+                </div>
+                <p className="text-blue-800 text-[11px] leading-relaxed">
+                  Brevo detected this API request from your network IP (<strong>106.219.182.203</strong>) and requires a one-time approval.
+                </p>
+                <div className="flex flex-wrap items-center gap-3 pt-1">
+                  <a
+                    href="https://app.brevo.com/security/authorised_ips"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center space-x-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-2xs transition"
+                  >
+                    <span>Open Brevo IP Security Settings ↗</span>
+                  </a>
+                  <span className="text-[11px] text-blue-700">
+                    Or check your email inbox (<strong>Subashreekamal@gmail.com</strong>) for Brevo's verification link!
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* Error Help / Troubleshooting Card for Brevo 535 */}
             {errorMsg && (errorMsg.includes('535') || errorMsg.includes('Authentication failed')) && (
