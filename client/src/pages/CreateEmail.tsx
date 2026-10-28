@@ -121,6 +121,7 @@ export const CreateEmail: React.FC<{ initialDraftId?: string; onTabChange?: (tab
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isImproving, setIsImproving] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [sendProvider, setSendProvider] = useState<'BREVO' | 'GMAIL'>('BREVO');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
@@ -357,7 +358,7 @@ export const CreateEmail: React.FC<{ initialDraftId?: string; onTabChange?: (tab
           length,
           additionalInstructions,
           isDraft: false,
-          provider: 'BREVO',
+          provider: sendProvider,
         });
         emailId = saved.email.id;
         setCurrentDraftId(emailId);
@@ -368,16 +369,19 @@ export const CreateEmail: React.FC<{ initialDraftId?: string; onTabChange?: (tab
           subject,
           bodyText,
           isDraft: false,
-          provider: 'BREVO',
+          provider: sendProvider,
         });
       }
 
-      // 2. Dispatch via Brevo backend
+      // 2. Dispatch via chosen backend provider
       if (!emailId) throw new Error('Failed to initialize email record before sending.');
-      const result = await api.sendEmailViaBrevo(emailId);
+
+      const result = sendProvider === 'BREVO'
+        ? await api.sendEmailViaBrevo(emailId)
+        : await api.sendEmailViaGmail(emailId);
 
       if (result.success) {
-        setSuccessMsg(result.message || 'Email successfully sent via Brevo backend!');
+        setSuccessMsg(result.message || `Email successfully sent via ${sendProvider === 'BREVO' ? 'Brevo backend' : 'Gmail'}!`);
         if (onTabChange) {
           setTimeout(() => {
             onTabChange('my-emails');
@@ -385,8 +389,8 @@ export const CreateEmail: React.FC<{ initialDraftId?: string; onTabChange?: (tab
         }
       }
     } catch (err: any) {
-      console.error('Brevo send error:', err);
-      setErrorMsg(err.message || 'Failed to dispatch email through Brevo backend.');
+      console.error('Send error:', err);
+      setErrorMsg(err.message || `Failed to dispatch email through ${sendProvider === 'BREVO' ? 'Brevo backend' : 'Gmail API'}.`);
     } finally {
       setIsSending(false);
     }
@@ -907,13 +911,62 @@ export const CreateEmail: React.FC<{ initialDraftId?: string; onTabChange?: (tab
               />
             </div>
 
-            {/* Footer with Brevo Delivery & Send Button */}
+            {/* Error Help / Troubleshooting Card for Brevo 535 */}
+            {errorMsg && (errorMsg.includes('535') || errorMsg.includes('Authentication failed')) && (
+              <div className="p-4 bg-amber-50/80 border border-amber-200 rounded-xl space-y-2 text-xs text-amber-950">
+                <div className="flex items-center space-x-1.5 font-bold text-amber-900">
+                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>How to fix Brevo 535 Authentication Failed:</span>
+                </div>
+                <ul className="list-disc pl-5 space-y-1 text-amber-800 text-[11px] leading-relaxed">
+                  <li>
+                    <strong>Check SMTP Login Username:</strong> In your Brevo account (<em>Settings &gt; SMTP &amp; API &gt; SMTP</em>), verify the exact <strong>Login</strong> username assigned to your account.
+                  </li>
+                  <li>
+                    <strong>Account Activation:</strong> Newly registered Brevo accounts require one-time account activation or sender verification before outgoing relay is permitted.
+                  </li>
+                  <li>
+                    <strong>Alternative:</strong> You can select <strong>Send via Gmail</strong> below to dispatch this email directly through your connected Gmail account!
+                  </li>
+                </ul>
+              </div>
+            )}
+
+            {/* Footer with Provider Selector & Send Action */}
             <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center space-x-2 text-xs text-slate-500">
-                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  Brevo Dispatch
-                </span>
-                <span>Sent directly via your authenticated Brevo backend</span>
+              {/* Sending Provider Selector */}
+              <div className="flex items-center space-x-2 text-xs">
+                <span className="text-slate-500 font-medium">Send via:</span>
+                <div className="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSendProvider('BREVO');
+                      setErrorMsg(null);
+                    }}
+                    className={`px-3 py-1 rounded-md text-xs font-semibold transition cursor-pointer ${
+                      sendProvider === 'BREVO'
+                        ? 'bg-white text-emerald-700 shadow-2xs font-bold'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Brevo (Marketing)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSendProvider('GMAIL');
+                      setErrorMsg(null);
+                    }}
+                    className={`px-3 py-1 rounded-md text-xs font-semibold transition cursor-pointer ${
+                      sendProvider === 'GMAIL'
+                        ? 'bg-white text-indigo-700 shadow-2xs font-bold'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Gmail Account
+                  </button>
+                </div>
               </div>
 
               <div className="flex items-center space-x-3">
@@ -930,10 +983,18 @@ export const CreateEmail: React.FC<{ initialDraftId?: string; onTabChange?: (tab
                   type="button"
                   onClick={handleSendEmail}
                   disabled={isSending}
-                  className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-200 transition-all flex items-center space-x-2 cursor-pointer disabled:opacity-50"
+                  className={`px-6 py-2.5 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center space-x-2 cursor-pointer disabled:opacity-50 ${
+                    sendProvider === 'BREVO'
+                      ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 shadow-emerald-200'
+                      : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 shadow-indigo-200'
+                  }`}
                 >
                   <Send className={`w-3.5 h-3.5 ${isSending ? 'animate-spin' : ''}`} />
-                  <span>{isSending ? 'Sending via Brevo...' : 'Send Email'}</span>
+                  <span>
+                    {isSending
+                      ? `Sending via ${sendProvider === 'BREVO' ? 'Brevo' : 'Gmail'}...`
+                      : `Send via ${sendProvider === 'BREVO' ? 'Brevo' : 'Gmail'}`}
+                  </span>
                 </button>
               </div>
             </div>
