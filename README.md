@@ -1,9 +1,93 @@
-# MailPilot AI & Marketing Sequence Suite 🚀
+# MailPilot AI — Intelligent Email & Marketing Automation Suite 🚀
 
-> **"Write smarter. Send professionally. Automate everything."**
+> **Write smarter. Send professionally. Automate everything.**
 
-MailPilot AI is a comprehensive full-stack SaaS platform combining:
-1. **AI-Powered Personal Email Creation & Gmail API Direct Sending**
-2. **AI-Driven Multi-Step Marketing Sequences (Brevo Delivery & Auto-Scheduler)**
-3. **Integrated Multi-Platform Campaign Generator (Streamlit + React App)**
-4. **Real Performance Analytics & Contact Audience Management**
+[![Live Web Application](https://img.shields.io/badge/Live%20App-ai--mailgen--1.onrender.com-indigo?style=for-the-badge&logo=render)](https://ai-mailgen-1.onrender.com)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-AI--mailgen-black?style=for-the-badge&logo=github)](https://github.com/subashree-1408/AI-mailgen)
+
+---
+
+## 🌐 Live Web Application
+
+Access the fully deployed full-stack platform live on Render:
+👉 **[https://ai-mailgen-1.onrender.com](https://ai-mailgen-1.onrender.com)**
+
+### 🔐 Administrator Sign-In
+When you open the live link, it automatically opens the **Administrator Portal**:
+* **Admin Email:** `subashreekamal@gmail.com`
+* **Admin Password:** `inselen3ra`
+
+*After signing in, you gain instant, unrestricted access to the entire platform.*
+
+---
+
+## ✨ Key Features
+
+1. **AI-Powered Email Generation (Google Gemini):**
+   * Multi-objective email drafting (Promotions, Cold Outreach, Follow-ups, Announcements, Newsletters).
+   * **Automatic Company Name Bolding:** Whenever a business or brand name is mentioned, it is automatically highlighted in bold (**Company Name**) across plain text and HTML emails.
+2. **Instant Delivery Engine (Brevo REST API v3):**
+   * Direct dispatch over high-speed HTTPS port 443 with sub-second delivery.
+   * Sender identity: `subashree <subashreekamal@gmail.com>`.
+3. **Multi-Stage Marketing Sequences:**
+   * Automated drip sequences with configurable stage delays and drip analytics.
+4. **Audience & Contact Management:**
+   * Contact directory with segmentation and unsubscribe protection.
+5. **My Emails & Analytics:**
+   * Real-time dispatch status, tracking, and resend capability.
+
+---
+
+## 🛠️ Tech Stack
+
+* **Frontend:** React 19, TypeScript, Vite, Tailwind CSS, Lucide Icons
+* **Backend:** Node.js, Express, TypeScript, Prisma ORM (SQLite / PostgreSQL)
+* **AI Engine:** Google Gemini AI API (`@google/genai`)
+* **Email Delivery:** Brevo (Sendinblue) Transactional REST API v3
+* **Security:** AES-256-GCM token encryption, JWT authentication, bcrypt hashing
+
+---
+
+## 🚀 Local Development Setup
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/subashree-1408/AI-mailgen.git
+cd AI-mailgen
+```
+
+### 2. Install dependencies & build
+```bash
+# Build frontend
+cd client && npm install && npm run build
+
+# Build backend
+cd ../server && npm install && npx prisma db push && npm run build
+```
+
+### 3. Start development servers
+```bash
+# Run backend (Port 5000)
+cd server && npm run dev
+
+# Run frontend (Port 3000)
+cd client && npm run dev
+```
+
+---
+
+## ☁️ Deployment on Render
+
+This project is configured for single-service full-stack deployment on Render:
+* **Runtime:** `Node`
+* **Build Command:** `npm run build`
+* **Start Command:** `npm start`
+* **Required Environment Variables:**
+  * `NODE_ENV`: `production`
+  * `DATABASE_URL`: `file:./dev.db`
+  * `JWT_SECRET`: your secret key
+  * `TOKEN_ENCRYPTION_KEY`: 64-char hex key
+  * `GEMINI_API_KEY`: your Google Gemini API key
+  * `BREVO_API_KEY`: your Brevo v3 REST API key (`xkeysib-...`)
+  * `BREVO_SENDER_EMAIL`: `subashreekamal@gmail.com`
+  * `BREVO_SENDER_NAME`: `subashree`
