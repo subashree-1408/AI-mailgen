@@ -18,6 +18,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState<boolean>(true);
 
   const fetchCurrentUser = async () => {
+    const token = getAuthToken();
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await api.getMe();
       if (res?.user) {
@@ -25,10 +31,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (err) {
       console.warn('Session check:', err);
-      // If failed and token invalid, clear
-      if (getAuthToken()) {
-        clearAuthToken();
-      }
+      clearAuthToken();
+      setUser(null);
     } finally {
       setLoading(false);
     }

@@ -21,8 +21,8 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
     const isMasterAdmin =
       normalizedEmail === 'subashreekamal@gmail.com' && (password || '').toLowerCase().trim() === 'inselen3ra';
 
-    let user = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
+    let user = await prisma.user.findFirst({
+      where: { OR: [{ email: normalizedEmail }, { email: email.trim() }, { id: 'admin_subashree_root_id' }] },
     });
 
     // If master admin login and account doesn't exist yet in database, provision automatically on the fly
@@ -32,7 +32,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       user = await prisma.user.create({
         data: {
           id: 'admin_subashree_root_id',
-          email: 'Subashreekamal@gmail.com',
+          email: 'subashreekamal@gmail.com',
           name: 'subashree',
           passwordHash,
           role: 'ADMIN',

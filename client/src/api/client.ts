@@ -1,15 +1,34 @@
 const API_BASE = '/api';
 
+// Clean up legacy localStorage tokens from older sessions so the live link opens the Admin Portal first
+try {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('mailpilot_token');
+  }
+} catch (e) {}
+
 export function getAuthToken(): string | null {
-  return localStorage.getItem('mailpilot_token');
+  // Use sessionStorage so that whenever a user opens or clicks the live project link,
+  // the Administration Portal is opened first!
+  try {
+    return sessionStorage.getItem('mailpilot_token');
+  } catch (e) {
+    return null;
+  }
 }
 
 export function setAuthToken(token: string) {
-  localStorage.setItem('mailpilot_token', token);
+  try {
+    sessionStorage.setItem('mailpilot_token', token);
+    localStorage.removeItem('mailpilot_token');
+  } catch (e) {}
 }
 
 export function clearAuthToken() {
-  localStorage.removeItem('mailpilot_token');
+  try {
+    sessionStorage.removeItem('mailpilot_token');
+    localStorage.removeItem('mailpilot_token');
+  } catch (e) {}
 }
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
