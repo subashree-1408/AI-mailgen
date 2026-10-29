@@ -14,8 +14,6 @@ Access the fully deployed full-stack platform live on Render:
 
 ### 🔐 Administrator Sign-In
 When you open the live link, it automatically opens the **Administrator Portal**:
-* **Admin Email:** `subashreekamal@gmail.com`
-* **Admin Password:** `inselen3ra`
 
 *After signing in, you gain instant, unrestricted access to the entire platform.*
 
