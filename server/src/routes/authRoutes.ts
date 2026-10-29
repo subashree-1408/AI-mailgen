@@ -19,7 +19,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
 
     const normalizedEmail = email.toLowerCase().trim();
     const isMasterAdmin =
-      normalizedEmail === 'subashreekamal@gmail.com' && (password === 'inselen3ra' || password.trim() === 'inselen3ra');
+      normalizedEmail === 'subashreekamal@gmail.com' && (password || '').toLowerCase().trim() === 'inselen3ra';
 
     let user = await prisma.user.findUnique({
       where: { email: normalizedEmail },
