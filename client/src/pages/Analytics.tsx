@@ -75,7 +75,7 @@ export const Analytics: React.FC = () => {
           </div>
 
           <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs">
-            <span className="text-xs text-slate-500 font-medium">Accepted by Gmail</span>
+            <span className="text-xs text-slate-500 font-medium">Delivered via Brevo</span>
             <p className="text-2xl font-bold text-emerald-600 mt-1">{personal?.sentThroughGmail ?? 0}</p>
             <p className="text-[11px] text-slate-400 mt-1">Successfully dispatched</p>
           </div>

@@ -78,7 +78,7 @@ export const MyEmails: React.FC<MyEmailsProps> = ({ onOpenEmail, onNewEmail }) =
         return (
           <span className="inline-flex items-center text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full text-[11px] font-semibold">
             <CheckCircle2 className="w-3 h-3 mr-1" />
-            Accepted by Gmail
+            Sent via Brevo
           </span>
         );
       case 'DRAFT':
@@ -161,7 +161,7 @@ export const MyEmails: React.FC<MyEmailsProps> = ({ onOpenEmail, onNewEmail }) =
             className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:border-indigo-500"
           >
             <option value="ALL">All Statuses</option>
-            <option value="ACCEPTED">Sent (Accepted by Gmail)</option>
+            <option value="ACCEPTED">Sent (Delivered via Brevo)</option>
             <option value="DRAFT">Drafts</option>
             <option value="FAILED">Failed</option>
           </select>

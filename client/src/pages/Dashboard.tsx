@@ -157,7 +157,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               </div>
             </div>
             <p className="text-2xl font-bold text-slate-900">{metrics?.personalEmails?.sentThroughGmail ?? 0}</p>
-            <p className="text-[11px] text-slate-400">Accepted by Gmail API</p>
+            <p className="text-[11px] text-slate-400">Delivered via Brevo</p>
           </div>
 
           <div
