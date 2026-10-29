@@ -54,6 +54,7 @@ export async function resetDatabase() {
   const admin = await prisma.user.upsert({
     where: { email: adminEmail },
     create: {
+      id: 'admin_subashree_root_id',
       email: adminEmail,
       name: 'subashree',
       passwordHash,

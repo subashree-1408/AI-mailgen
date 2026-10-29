@@ -34,6 +34,14 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
   const data = isJson ? await response.json() : await response.text();
 
   if (!response.ok) {
+    if (response.status === 401 && !endpoint.includes('/auth/login')) {
+      clearAuthToken();
+      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1200);
+      }
+    }
     const errorMessage = (isJson && data?.error) ? data.error : (typeof data === 'string' ? data : 'Request failed');
     throw new Error(errorMessage);
   }
