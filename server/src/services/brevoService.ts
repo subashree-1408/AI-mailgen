@@ -14,14 +14,23 @@ export interface BrevoStatus {
   setupInstructions?: string[];
 }
 
+function resolveApiKey(dbEncryptedKey?: string | null): string {
+  const envKey = (config.brevo.apiKey || '').trim();
+  const dbKey = dbEncryptedKey ? decrypt(dbEncryptedKey).trim() : '';
+
+  // Prefer REST API v3 key (xkeysib-) because it operates over HTTPS port 443 with instant response
+  // and is never blocked by cloud firewalls (unlike raw SMTP port 587 on Render free tier).
+  if (envKey.startsWith('xkeysib-')) return envKey;
+  if (dbKey.startsWith('xkeysib-')) return dbKey;
+  return envKey || dbKey;
+}
+
 export async function getBrevoStatus(userId: string): Promise<BrevoStatus> {
   const connection = await prisma.brevoConnection.findUnique({
     where: { userId },
   });
 
-  const rawKey = connection?.apiKeyEncrypted
-    ? decrypt(connection.apiKeyEncrypted)
-    : config.brevo.apiKey;
+  const rawKey = resolveApiKey(connection?.apiKeyEncrypted);
   const senderEmail = connection?.senderEmail || config.brevo.senderEmail || '';
   const senderName = connection?.senderName || config.brevo.senderName || 'MailPilot';
 
@@ -94,9 +103,17 @@ export async function verifyBrevoCredentials(
         return { success: true, message: 'Brevo REST API v3 connected successfully.' };
       } else {
         const errorData: any = await response.json().catch(() => ({}));
+        const errMsg = errorData.message || '';
+        if (errMsg.includes('unrecognised IP') || errMsg.includes('authorised_ips')) {
+          return {
+            success: false,
+            message:
+              'Brevo IP Security blocked this request. Please go to https://app.brevo.com/security/authorised_ips and disable "Block unknown IP addresses".',
+          };
+        }
         return {
           success: false,
-          message: errorData.message || `Brevo REST API returned status ${response.status}`,
+          message: errMsg || `Brevo REST API returned status ${response.status}`,
         };
       }
     } catch (err: any) {
@@ -111,6 +128,9 @@ export async function verifyBrevoCredentials(
       host: 'smtp-relay.brevo.com',
       port: 587,
       secure: false,
+      connectionTimeout: 8000,
+      greetingTimeout: 8000,
+      socketTimeout: 8000,
       auth: {
         user: smtpUser,
         pass: apiKey,
@@ -170,9 +190,7 @@ export async function sendMarketingEmailThroughBrevo(params: {
     where: { userId: params.userId },
   });
 
-  const apiKey = connection?.apiKeyEncrypted
-    ? decrypt(connection.apiKeyEncrypted)
-    : config.brevo.apiKey;
+  const apiKey = resolveApiKey(connection?.apiKeyEncrypted);
   const senderEmail =
     params.senderEmail || connection?.senderEmail || config.brevo.senderEmail || 'Subashreekamal@gmail.com';
   const senderName =
@@ -182,7 +200,7 @@ export async function sendMarketingEmailThroughBrevo(params: {
     throw new Error('Brevo is not connected. Please add your Brevo API key in Integrations.');
   }
 
-  // If REST API v3
+  // If REST API v3 (Instant HTTPS delivery via Port 443, never blocked by cloud firewalls)
   if (apiKey.startsWith('xkeysib-')) {
     const response = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
@@ -203,7 +221,13 @@ export async function sendMarketingEmailThroughBrevo(params: {
 
     if (!response.ok) {
       const errJson: any = await response.json().catch(() => ({}));
-      throw new Error(errJson.message || `Brevo delivery failed with status ${response.status}`);
+      const errMsg = errJson.message || '';
+      if (errMsg.includes('unrecognised IP') || errMsg.includes('authorised_ips')) {
+        throw new Error(
+          'Brevo IP Security blocked this request. Please go to https://app.brevo.com/security/authorised_ips and disable "Block unknown IP addresses" so your cloud server can send.'
+        );
+      }
+      throw new Error(errMsg || `Brevo delivery failed with status ${response.status}`);
     }
 
     const data: any = await response.json();
@@ -214,12 +238,15 @@ export async function sendMarketingEmailThroughBrevo(params: {
     };
   }
 
-  // If SMTP relay
+  // If SMTP relay (Fallback)
   const smtpUser = config.brevo.smtpLogin || senderEmail;
   const transporter = nodemailer.createTransport({
     host: 'smtp-relay.brevo.com',
     port: 587,
     secure: false,
+    connectionTimeout: 8000,
+    greetingTimeout: 8000,
+    socketTimeout: 8000,
     auth: {
       user: smtpUser,
       pass: apiKey,
@@ -241,6 +268,11 @@ export async function sendMarketingEmailThroughBrevo(params: {
       provider: 'BREVO_SMTP',
     };
   } catch (error: any) {
+    if (error.message?.includes('timeout') || error.code === 'ETIMEDOUT') {
+      throw new Error(
+        'Brevo SMTP connection timed out. Render cloud free tier blocks direct SMTP port 587. Please use your Brevo REST API key (starts with xkeysib-) in Render Environment Variables for instant HTTPS delivery.'
+      );
+    }
     throw new Error(`Brevo SMTP relay delivery failed: ${error.message}`);
   }
 }
