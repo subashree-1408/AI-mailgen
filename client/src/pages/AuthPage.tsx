@@ -4,8 +4,8 @@ import { useAuth } from '../context/AuthContext.js';
 
 export const AuthPage: React.FC = () => {
   const { login } = useAuth();
-  const [email, setEmail] = useState('Subashreekamal@gmail.com');
-  const [password, setPassword] = useState('inselen3ra');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -93,13 +93,6 @@ export const AuthPage: React.FC = () => {
             )}
           </button>
         </form>
-
-        {/* Administrator Credentials Info */}
-        <div className="bg-slate-50 rounded-xl p-3 border border-slate-200 text-[11px] text-slate-500 space-y-1">
-          <p className="font-semibold text-slate-700">Administrator Credentials:</p>
-          <p>Admin Email: <code className="text-indigo-600 font-mono">Subashreekamal@gmail.com</code></p>
-          <p>Admin Password: <code className="text-indigo-600 font-mono">inselen3ra</code></p>
-        </div>
       </div>
     </div>
   );

