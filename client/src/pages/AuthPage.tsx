@@ -27,8 +27,8 @@ export const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden p-8 space-y-6">
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-3 sm:p-4">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden p-5 sm:p-8 space-y-5 sm:space-y-6">
         {/* Brand & Admin Badge */}
         <div className="text-center space-y-2">
           <div className="w-12 h-12 bg-indigo-600 rounded-2xl text-white flex items-center justify-center mx-auto shadow-md shadow-indigo-100">

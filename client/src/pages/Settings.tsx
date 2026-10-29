@@ -29,7 +29,7 @@ export const Settings: React.FC = () => {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
+    <div className="p-3.5 sm:p-6 lg:p-8 max-w-4xl mx-auto space-y-4 sm:space-y-6">
       <div>
         <h2 className="text-lg font-bold text-slate-900 tracking-tight">Account & Workspace Settings</h2>
         <p className="text-xs text-slate-500">
@@ -38,7 +38,7 @@ export const Settings: React.FC = () => {
       </div>
 
       {/* User Profile Card */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-xs space-y-4">
         <div className="flex items-center space-x-3 pb-3 border-b border-slate-100">
           <div className="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
             <User className="w-5 h-5" />
@@ -93,7 +93,7 @@ export const Settings: React.FC = () => {
       </div>
 
       {/* Connected Email Services */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-xs space-y-4">
         <div className="flex items-center space-x-3 pb-3 border-b border-slate-100">
           <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-bold">
             <Mail className="w-5 h-5" />
@@ -132,7 +132,7 @@ export const Settings: React.FC = () => {
       </div>
 
       {/* Security & Token Encryption Card */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-3">
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-xs space-y-3">
         <div className="flex items-center space-x-3 pb-3 border-b border-slate-100">
           <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 font-bold">
             <Shield className="w-5 h-5" />
@@ -154,7 +154,7 @@ export const Settings: React.FC = () => {
       </div>
 
       {/* Admin Danger Zone / Reset All Data */}
-      <div className="bg-red-50/50 border border-red-200 rounded-2xl p-6 shadow-xs space-y-4">
+      <div className="bg-red-50/50 border border-red-200 rounded-2xl p-4 sm:p-6 shadow-xs space-y-4">
         <div className="flex items-center space-x-3 pb-3 border-b border-red-100">
           <div className="w-10 h-10 rounded-full bg-red-100 border border-red-200 flex items-center justify-center text-red-600 font-bold">
             <Trash2 className="w-5 h-5" />

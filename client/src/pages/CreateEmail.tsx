@@ -427,14 +427,14 @@ export const CreateEmail: React.FC<CreateEmailProps> = ({
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div className="p-3.5 sm:p-6 lg:p-8 max-w-5xl mx-auto space-y-4 sm:space-y-6">
       {/* Step Breadcrumbs / Progress Indicator */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-2xs">
+      <div className="bg-white border border-slate-200 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-2xs">
         <div className="flex items-center justify-between max-w-2xl mx-auto text-xs font-semibold">
           {/* Step 1 */}
           <div
             onClick={() => setCurrentStep('details')}
-            className={`flex items-center space-x-2 cursor-pointer transition ${
+            className={`flex items-center space-x-1.5 sm:space-x-2 cursor-pointer transition ${
               currentStep === 'details'
                 ? 'text-indigo-600 font-bold'
                 : 'text-slate-500 hover:text-slate-800'
@@ -449,13 +449,14 @@ export const CreateEmail: React.FC<CreateEmailProps> = ({
             >
               1
             </div>
-            <span>Email Details</span>
+            <span className="hidden xs:inline">Email Details</span>
+            <span className="xs:hidden">Details</span>
           </div>
 
-          <div className="flex-1 h-0.5 mx-4 bg-slate-200" />
+          <div className="flex-1 h-0.5 mx-2 sm:mx-4 bg-slate-200" />
 
           {/* Step 2 */}
-          <div className="flex items-center space-x-2 text-slate-400">
+          <div className="flex items-center space-x-1.5 sm:space-x-2 text-slate-400">
             <div
               className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] ${
                 isGenerating ? 'bg-indigo-600 text-white animate-pulse' : 'bg-slate-100 text-slate-400'
@@ -466,14 +467,14 @@ export const CreateEmail: React.FC<CreateEmailProps> = ({
             <span>Generate</span>
           </div>
 
-          <div className="flex-1 h-0.5 mx-4 bg-slate-200" />
+          <div className="flex-1 h-0.5 mx-2 sm:mx-4 bg-slate-200" />
 
           {/* Step 3 */}
           <div
             onClick={() => {
               if (bodyText) setCurrentStep('review');
             }}
-            className={`flex items-center space-x-2 transition ${
+            className={`flex items-center space-x-1.5 sm:space-x-2 transition ${
               currentStep === 'review'
                 ? 'text-indigo-600 font-bold'
                 : bodyText
@@ -490,7 +491,8 @@ export const CreateEmail: React.FC<CreateEmailProps> = ({
             >
               3
             </div>
-            <span>Review & Send</span>
+            <span className="hidden xs:inline">Review & Send</span>
+            <span className="xs:hidden">Review</span>
           </div>
         </div>
       </div>
@@ -784,12 +786,12 @@ export const CreateEmail: React.FC<CreateEmailProps> = ({
             </div>
 
             {/* 8. Generate Email Action */}
-            <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+            <div className="pt-4 border-t border-slate-100 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <button
                 type="button"
                 onClick={handleSaveDraft}
                 disabled={isSavingDraft || !recipientEmail}
-                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition cursor-pointer disabled:opacity-50 flex items-center space-x-1.5"
+                className="w-full sm:w-auto px-4 py-3 sm:py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition cursor-pointer disabled:opacity-50 flex items-center justify-center space-x-1.5"
               >
                 <Save className="w-3.5 h-3.5" />
                 <span>{isSavingDraft ? 'Saving Draft...' : 'Save Draft'}</span>
@@ -798,7 +800,7 @@ export const CreateEmail: React.FC<CreateEmailProps> = ({
               <button
                 type="submit"
                 disabled={isGenerating}
-                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-200 transition-all flex items-center space-x-2 cursor-pointer disabled:opacity-50"
+                className="w-full sm:w-auto px-6 py-3.5 sm:py-3 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-200 transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50"
               >
                 <Sparkles className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
                 <span>{isGenerating ? 'Generating Email with Gemini...' : 'Generate Email'}</span>
@@ -815,7 +817,7 @@ export const CreateEmail: React.FC<CreateEmailProps> = ({
       {currentStep === 'review' && (
         <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden space-y-0 animate-in fade-in">
           {/* Header & Navigation */}
-          <div className="px-6 py-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50/50">
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
             <button
               onClick={() => setCurrentStep('details')}
               className="inline-flex items-center space-x-1 text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer"
@@ -968,21 +970,21 @@ export const CreateEmail: React.FC<CreateEmailProps> = ({
             )}
 
             {/* Footer with Action Buttons */}
-            <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
+            <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center space-x-2 text-xs text-slate-500">
-                <span className="font-medium">Sender Identity:</span>
-                <span className="font-mono text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md text-[11px] font-semibold flex items-center space-x-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span>Subashreekamal@gmail.com</span>
+                <span className="font-medium">Sender:</span>
+                <span className="font-mono text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md text-[11px] font-semibold flex items-center space-x-1.5 truncate max-w-full">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                  <span className="truncate">Subashreekamal@gmail.com</span>
                 </span>
               </div>
 
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2 sm:space-x-3 w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={handleSaveDraft}
                   disabled={isSavingDraft}
-                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+                  className="flex-1 sm:flex-none px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition cursor-pointer disabled:opacity-50 text-center"
                 >
                   {isSavingDraft ? 'Saving Draft...' : 'Save Draft'}
                 </button>
@@ -991,10 +993,10 @@ export const CreateEmail: React.FC<CreateEmailProps> = ({
                   type="button"
                   onClick={handleSendEmail}
                   disabled={isSending}
-                  className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-200 transition-all flex items-center space-x-2 cursor-pointer disabled:opacity-50"
+                  className="flex-1 sm:flex-none px-5 sm:px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-200 transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50 text-center"
                 >
                   <Send className={`w-3.5 h-3.5 ${isSending ? 'animate-spin' : ''}`} />
-                  <span>{isSending ? 'Sending Email via Brevo...' : 'Send Email'}</span>
+                  <span>{isSending ? 'Sending...' : 'Send Email'}</span>
                 </button>
               </div>
             </div>
